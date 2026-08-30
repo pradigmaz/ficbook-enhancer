@@ -1,4 +1,5 @@
 import { serializeFb2 } from './fb2.js';
+import { serializeTxt } from './txt.js';
 
 const PART_CONTENT_SELECTOR = '#content.part_text[itemprop="articleBody"]';
 const NOISE_SELECTOR = 'script, style, noscript, .fanfic-text-promo, [data-place-id]';
@@ -10,6 +11,10 @@ const MAX_RATE_LIMIT_ATTEMPTS = 3;
 const WORK_ID_PATH = '(?:\\d+|[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})';
 const WORK_URL_PATH = new RegExp(`^/readfic/(${WORK_ID_PATH})(?:/\\d+)?/?$`, 'i');
 const CHAPTER_URL_PATH = new RegExp(`^/readfic/(${WORK_ID_PATH})/(\\d+)$`, 'i');
+const EXPORT_FORMATS = {
+  fb2: { extension: 'fb2', mimeType: 'application/x-fictionbook+xml;charset=utf-8', serialize: serializeFb2 },
+  txt: { extension: 'txt', mimeType: 'text/plain;charset=utf-8', serialize: serializeTxt },
+};
 
 export const getWorkUrl = (pageUrl, expectedOrigin) => {
   try {
@@ -229,8 +234,8 @@ const extractChapter = (documentNode, fallbackTitle) => {
   };
 };
 
-const download = (contents, fileName) => {
-  const url = URL.createObjectURL(new Blob([contents], { type: 'application/x-fictionbook+xml;charset=utf-8' }));
+const download = (contents, fileName, mimeType) => {
+  const url = URL.createObjectURL(new Blob([contents], { type: mimeType }));
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = fileName;
@@ -241,7 +246,7 @@ const download = (contents, fileName) => {
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 };
 
-const fileNameFor = (title, workId) => {
+const fileNameFor = (title, workId, extension) => {
   const cleanTitle = title
     .replace(/[<>:"/\\|?*]/g, '')
     .split('')
@@ -250,11 +255,13 @@ const fileNameFor = (title, workId) => {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 120);
-  return `${cleanTitle || `ficbook-${workId}`}.fb2`;
+  return `${cleanTitle || `ficbook-${workId}`}.${extension}`;
 };
 
 // ponytail: text and inline formatting only; add cover/illustration binaries after an explicit asset policy.
-export const exportCurrentWorkToFb2 = async ({ pageUrl = window.location.href, origin = window.location.origin, onProgress, onWait } = {}) => {
+const exportCurrentWork = async (format, { pageUrl = window.location.href, origin = window.location.origin, onProgress, onWait } = {}) => {
+  const exportFormat = EXPORT_FORMATS[format];
+  if (!exportFormat) throw new Error('Неизвестный формат файла.');
   const workUrl = getWorkUrl(pageUrl, origin);
   if (!workUrl) throw new Error('Откройте страницу работы или её главы на Ficbook.');
 
@@ -277,7 +284,9 @@ export const exportCurrentWorkToFb2 = async ({ pageUrl = window.location.href, o
 
   onProgress?.({ completed: chapters.length, total: chapterLinks.length, phase: 'serializing' });
   await yieldToBrowser();
-  const fb2 = serializeFb2({ work, chapters });
-  download(fb2, fileNameFor(work.title, work.id));
+  download(exportFormat.serialize({ work, chapters }), fileNameFor(work.title, work.id, exportFormat.extension), exportFormat.mimeType);
   return { title: work.title, chapterCount: chapters.length, total: chapterLinks.length };
 };
+
+export const exportCurrentWorkToFb2 = (options) => exportCurrentWork('fb2', options);
+export const exportCurrentWorkToTxt = (options) => exportCurrentWork('txt', options);

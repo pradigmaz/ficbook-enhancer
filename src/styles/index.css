@@ -82,13 +82,17 @@
   position: relative; z-index: 10;
 }
 .fbe-title { font-weight: 800; font-size: 17px; display: flex; gap: 8px; }
-.fbe-icon-btn {
+.fbe-header-actions { display: flex; align-items: center; gap: 6px; }
+.fbe-icon-btn, .fbe-releases-link {
   background: rgba(255,255,255,0.1); border: none; color: white;
   width: 28px; height: 28px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background-color 0.18s ease, transform 0.18s ease;
 }
 .fbe-icon-btn:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+.fbe-releases-link:hover { background: rgba(255,255,255,0.3); }
+.fbe-release-notice { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 24px; border-bottom: 1px solid var(--fbe-border); background: rgba(255, 140, 0, 0.12); color: var(--fbe-text); font-size: 12px; font-weight: 700; text-decoration: none; transition: background-color 0.18s ease; }
+.fbe-release-notice:hover { background: rgba(255, 140, 0, 0.2); }
 
 /* НАВИГАЦИЯ */
 .fbe-nav {
@@ -350,7 +354,7 @@ E UPLOAD BUTTON */
 }
 .fbe-btn-danger:hover { background: #fecaca; }
 
-.fbe-icon-btn:focus-visible, .fbe-nav-item:focus-visible, .fbe-row:focus-visible,
+.fbe-icon-btn:focus-visible, .fbe-releases-link:focus-visible, .fbe-release-notice:focus-visible, .fbe-nav-item:focus-visible, .fbe-row:focus-visible,
 .fbe-btn-tab:focus-visible, :host .fbe-file-upload:focus-visible, .fbe-text-button:focus-visible,
 .fbe-reset-button:focus-visible, .fbe-export-button:focus-visible, .fbe-btn-secondary:focus-visible,
 .fbe-btn-danger:focus-visible, .fbe-main-button:focus-visible {

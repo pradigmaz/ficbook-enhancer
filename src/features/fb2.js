@@ -8,7 +8,7 @@ const XML_ENTITIES = {
 
 export const escapeXml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => XML_ENTITIES[character]);
 
-const ANNOTATION_FIELDS = [
+export const ANNOTATION_FIELDS = [
   ['Автор', 'author'],
   ['Фэндом', 'fandom'],
   ['Клуб фикса', 'club'],

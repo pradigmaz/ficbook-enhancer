@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { serializeFb2 } from '../src/features/fb2.js';
+import { serializeTxt } from '../src/features/txt.js';
 import { getChapterLinks, getRetryDelayMs, getWorkUrl } from '../src/features/fb2Export.js';
 import { canCloseExportPanel, protectExportNavigation, warnBeforeExportUnload } from '../src/features/exportNavigation.js';
 
@@ -146,6 +147,36 @@ test('serializes escaped metadata and normalized FB2 paragraphs', () => {
   assert.match(fb2, /<emphasis>Курсив<\/emphasis>/);
   assert.doesNotMatch(fb2, /Работа & <черновик>/);
   assert.doesNotMatch(fb2, /<annotation>/);
+});
+
+test('serializes a Windows-friendly TXT export with work metadata and chapters', () => {
+  const txt = serializeTxt({
+    work: {
+      id: '1671369',
+      title: 'Работа & <черновик>',
+      author: 'Автор & Соавтор',
+      sourceUrl: 'https://ficbook.net/readfic/1671369',
+      annotation: {
+        direction: 'Джен',
+        fandom: 'Ориджиналы',
+        description: 'Короткое описание работы.',
+      },
+    },
+    chapters: [{
+      title: 'Глава <1>',
+      blocks: [
+        { type: 'paragraph', inlines: [{ type: 'text', value: 'Текст & <разметка>' }] },
+        { type: 'paragraph', inlines: [{ type: 'strong', children: [{ type: 'text', value: 'Выделено' }] }] },
+        { type: 'paragraph', inlines: [{ type: 'text', value: 'Строка 1' }, { type: 'break' }, { type: 'text', value: 'Строка 2' }] },
+      ],
+    }],
+  });
+
+  assert.match(txt, /^\*{95}\r\nРабота & <черновик>\r\nhttps:\/\/ficbook\.net\/readfic\/1671369\r\n\*{95}/);
+  assert.match(txt, /Автор: Автор & Соавтор\r\nФэндом: Ориджиналы\r\nНаправленность: Джен/);
+  assert.match(txt, /Описание:\r\nКороткое описание работы\./);
+  assert.match(txt, /========== Глава <1> ==========\r\n\r\nТекст & <разметка>\r\n\r\nВыделено\r\n\r\nСтрока 1\r\nСтрока 2/);
+  assert.doesNotMatch(txt, /&amp;|&lt;|<strong>/);
 });
 
 test('serializes a compact Ficbook annotation without binary assets', () => {

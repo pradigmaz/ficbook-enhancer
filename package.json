@@ -1,7 +1,7 @@
 {
   "name": "ficbook-enhancer",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Настройка и очистка интерфейса Ficbook.",
   "type": "module",
   "scripts": {

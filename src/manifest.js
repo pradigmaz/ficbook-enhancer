@@ -3,10 +3,14 @@ import { defineManifest } from '@crxjs/vite-plugin'
 export default defineManifest({
   name: 'Ficbook Enhancer',
   description: 'Настройка и очистка интерфейса Ficbook',
-  version: '1.0.0',
+  version: '1.1.0',
   manifest_version: 3,
   permissions: ['storage'],
-  host_permissions: ['*://ficbook.net/*'],
+  host_permissions: ['*://ficbook.net/*', 'https://api.github.com/*'],
+  background: {
+    service_worker: 'src/background/index.js',
+    type: 'module',
+  },
   action: {
     default_popup: 'src/popup/index.html',
     default_title: 'Ficbook Enhancer',

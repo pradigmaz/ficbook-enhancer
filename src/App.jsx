@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import FloatingButton from './FloatingButton';
 import DownloadFb2Button from './DownloadFb2Button';
+import ReleaseUpdateNotice, { ReleasesLink } from './ReleaseUpdateNotice';
 import { CleanerTab, FiltersTab, PanelTabs } from './PanelControls';
 import { getButtonPositionStyle, getPanelPositionStyle } from './features/button';
 import { parseHiddenGenres } from './features/selectors';
@@ -180,8 +181,12 @@ const App = () => {
           
           <div className="fbe-header">
             <div className="fbe-title"><Zap size={18} aria-hidden="true" /> FB Enhancer</div>
-            <button type="button" onClick={handlePanelClose} className="fbe-icon-btn" aria-label="Закрыть настройки" title="Закрыть настройки"><X size={20} aria-hidden="true" /></button>
+            <div className="fbe-header-actions">
+              <ReleasesLink />
+              <button type="button" onClick={handlePanelClose} className="fbe-icon-btn" aria-label="Закрыть настройки" title="Закрыть настройки"><X size={20} aria-hidden="true" /></button>
+            </div>
           </div>
+          <ReleaseUpdateNotice />
 
           {/* --- CUSTOM CONFIRM MODAL --- */}
           {showResetConfirm && (
